@@ -1,0 +1,22 @@
+How to use
+==========
+
+
+Only once:
+
+javaaddpath /path/to/this/directory
+import RandSep
+
+RandSep always generates values from 0 to 1. Suppose you desire a separation
+of 0.1 between points. Then, create an appropriate RandSep object:
+
+r = RandSep(0.1);
+
+Now, you can generate successive instances like this:
+
+r.next()
+r.next()
+...
+
+This method will return a -1 if it cannot add additional points while
+maintaining desired separation.

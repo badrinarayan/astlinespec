@@ -1,0 +1,181 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Atomic Line Spectral Estimation Demo</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-05-19"><meta name="DC.source" content="astdemo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Atomic Line Spectral Estimation Demo</h1><!--introduction--><p>The Atomic  Line Spectral Estimation Toolbox is a suite of MATLAB functions for frequency estimation of  noisy line spectral signals  with AST (Atomic Soft Thresholding) as described in the paper</p><p>Badri Narayan Bhaskar, Gongguo Tang, Benjamin Recht "Atomic Norm Denoising for Line Spectral Estimation" (2013), preprint available at <a href="http://arxiv.org/abs/1204.0562">http://arxiv.org/abs/1204.0562</a></p><p>This demo provides a walkthrough of the toolbox functions and options.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Generating Line Spectral Signals</a></li><li><a href="#5">Use AST to denoise the signal and get frequencies and amplitudes</a></li><li><a href="#6">Plot the Estimated Signal</a></li><li><a href="#7">Performance Evaluation</a></li></ul></div><h2>Generating Line Spectral Signals<a name="1"></a></h2><p>In this example, we collect 100 equispaced signals with 5 frequencies in [0,1]</p><pre class="codeinput">n = 35;
+k = 5;
+</pre><p>The function <tt>linespectrum</tt> is a convenience function to generate samples of a line spectral signal.</p><pre class="codeinput">[signal,amps,freqs] = linespectrum(n, k, <span class="keyword">...</span>
+    <span class="string">'frequencies'</span>,[0.2, 0.6, 0.65, 0.8, 0.82],<span class="keyword">...</span>
+    <span class="string">'amplitudes'</span>,[-2 4 3 7 3]);
+</pre><p>We add noise so that the average signal to noise ratio is 15 dB</p><pre class="codeinput">SNR = 15;
+noise_std = norm(signal)/sqrt(n)*10^(-SNR/20);
+observed = signal + noise_std*(randn(n,1) + 1i*randn(n,1))/sqrt(2);
+</pre><p>Let us plot the line spectral signal</p><pre class="codeinput">stem(freqs,abs(amps)); axis([0 1 -inf inf]);
+
+title(<span class="string">'Original Frequencies'</span>);
+xlabel(<span class="string">'Frequencies'</span>);
+ylabel(<span class="string">'Amplitudes'</span>);
+</pre><img vspace="5" hspace="5" src="astdemo_01.png" alt=""> <h2>Use AST to denoise the signal and get frequencies and amplitudes<a name="5"></a></h2><p>Now, the frequencies and amplitudes can be recovered using ast_denoise function.</p><pre class="codeinput">tic;out = ast_denoise(observed);
+fprintf(<span class="string">'Finished in %g s.\n'</span>,toc);
+</pre><pre class="codeoutput">Finished in 0.518581 s.
+</pre><h2>Plot the Estimated Signal<a name="6"></a></h2><p>Now we will plot the estimated signal along with FFT</p><pre class="codeinput">hold <span class="string">on</span>;
+stem(out.freqs,abs(out.amps),<span class="string">'r'</span>);
+
+<span class="comment">% Plot the FFT</span>
+F = fft(observed);
+N = length(F);
+plot(0:1/N:(N-1)/N,abs(F)/N,<span class="string">'k--'</span>);
+
+hold <span class="string">off</span>;
+legend(<span class="string">'Original'</span>,<span class="string">'Estimated'</span>,<span class="string">'FFT'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+</pre><img vspace="5" hspace="5" src="astdemo_02.png" alt=""> <h2>Performance Evaluation<a name="7"></a></h2><p>We report the mean squared error improvement.</p><pre class="codeinput">mse = @(estimate) norm(signal(:)-estimate(:))/norm(signal);
+fprintf(<span class="string">'Received MSE = %.4f\n'</span>,mse(observed));
+fprintf(<span class="string">'AST MSE      = %.4f\n'</span>,mse(out.debiased));
+</pre><pre class="codeoutput">Received MSE = 0.1840
+AST MSE      = 0.0930
+</pre><p>We can also compare frequency estimation performance using the metrics described in</p><p>Gongguo Tang, Badri Narayan Bhaskar, Benjamin Recht "Near Minimax Line Spectral Estimation" (2013). Preprint available at <a href="http://arxiv.org/abs/1303.4348">http://arxiv.org/abs/1303.4348</a></p><pre class="codeinput">fprintf(<span class="string">'m1 = %.4g\n'</span>, m1func(out.amps,out.freqs,amps,freqs,n));
+fprintf(<span class="string">'m2 = %.4g\n'</span>, m2func(out.amps,out.freqs,amps,freqs,n));
+fprintf(<span class="string">'m3 = %.4g\n'</span>, m3func(out.amps,out.freqs,amps,freqs,n));
+</pre><pre class="codeoutput">m1 = 0
+m2 = 6.866e-05
+m3 = 1.731
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Atomic Line Spectral Estimation Demo
+%
+% The Atomic  Line Spectral Estimation Toolbox is a suite of MATLAB
+% functions for frequency estimation of  noisy line spectral signals  with
+% AST (Atomic Soft Thresholding) as described in the paper
+%
+% Badri Narayan Bhaskar, Gongguo Tang, Benjamin Recht "Atomic Norm
+% Denoising for Line Spectral Estimation" (2013), preprint available at 
+% http://arxiv.org/abs/1204.0562
+%
+% This demo provides a walkthrough of the toolbox functions and options.
+%
+%% Generating Line Spectral Signals
+%
+% In this example, we collect 100 equispaced
+% signals with 5 frequencies in [0,1]
+n = 35;
+k = 5;
+%%
+% The function |linespectrum| is a convenience function to generate samples
+% of a line spectral signal.
+[signal,amps,freqs] = linespectrum(n, k, ...
+    'frequencies',[0.2, 0.6, 0.65, 0.8, 0.82],...
+    'amplitudes',[-2 4 3 7 3]);
+%%
+% We add noise so that the average signal to noise ratio is 15 dB
+SNR = 15;
+noise_std = norm(signal)/sqrt(n)*10^(-SNR/20);
+observed = signal + noise_std*(randn(n,1) + 1i*randn(n,1))/sqrt(2);
+%% 
+% Let us plot the line spectral signal
+stem(freqs,abs(amps)); axis([0 1 -inf inf]);
+
+title('Original Frequencies');
+xlabel('Frequencies');
+ylabel('Amplitudes');
+
+%%  Use AST to denoise the signal and get frequencies and amplitudes
+% Now, the frequencies and amplitudes can be recovered using ast_denoise
+% function.     
+tic;out = ast_denoise(observed);
+fprintf('Finished in %g s.\n',toc);
+
+%% Plot the Estimated Signal
+% Now we will plot the estimated signal along with FFT
+hold on; 
+stem(out.freqs,abs(out.amps),'r');
+
+% Plot the FFT
+F = fft(observed);
+N = length(F);
+plot(0:1/N:(N-1)/N,abs(F)/N,'kREPLACE_WITH_DASH_DASH');
+
+hold off;
+legend('Original','Estimated','FFT','Location','NorthWest');
+
+%% Performance Evaluation
+% We report the mean squared error improvement.
+mse = @(estimate) norm(signal(:)-estimate(:))/norm(signal);
+fprintf('Received MSE = %.4f\n',mse(observed));
+fprintf('AST MSE      = %.4f\n',mse(out.debiased));
+
+%% 
+% We can also compare frequency estimation performance using the metrics 
+% described in
+%
+% Gongguo Tang, Badri Narayan Bhaskar, Benjamin Recht "Near Minimax Line
+% Spectral Estimation" (2013). Preprint available at 
+% http://arxiv.org/abs/1303.4348
+
+fprintf('m1 = %.4g\n', m1func(out.amps,out.freqs,amps,freqs,n));
+fprintf('m2 = %.4g\n', m2func(out.amps,out.freqs,amps,freqs,n));
+fprintf('m3 = %.4g\n', m3func(out.amps,out.freqs,amps,freqs,n));
+##### SOURCE END #####
+--></body></html>
